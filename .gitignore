@@ -1,0 +1,54 @@
+# ---- 密钥：绝对不能进 git ----
+.env
+.env.settings.tmp
+.runtime/
+*.key
+secrets.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# ---- Node / 前端 ----
+node_modules/
+web/dist/
+web/.vite/
+web/.npm-cache/
+npm-debug.log*
+build.log
+
+# ---- 沙箱临时目录 ----
+.piptmp/
+.pipmp/
+
+# ---- 索引是可重建产物，不入库 ----
+data/index/
+data/index_bak/
+data/processed/
+
+# ---- 本地条款可能受版权/隐私限制：默认只提交合成示例 ----
+data/raw/*
+!data/raw/README.md
+!data/raw/sample-*.json
+
+# ---- 大文件：测试 PDF 有 19 MB，但它可以用脚本重新生成 ----
+# 别人 clone 之后跑一次 python scripts/make_test_pdf.py 就有
+# （注意：该脚本依赖 Windows 中文字体，Linux/macOS 上可能生成不出来）
+data/samples/测试条款.pdf
+
+# ---- 本地评测输出可能包含语料片段，不提交 ----
+eval/results/
+
+# ---- 编辑器 ----
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# ---- 后台调试用的临时脚本 ----
+scripts/_tmp_*.py
+scripts/_debug_*.py

@@ -1,0 +1,299 @@
+/* ==========================================================================
+   设计令牌
+   方向：dark-tech editorial / engineered documentation
+   理由：这是合规与风控语义的产品，"依据可审计"要求秩序感而不是艺术感。
+        暗色单主题 + 单一祖母绿强调色 + 等宽字体承载数据。
+   ========================================================================== */
+
+:root {
+  /* 表面层级：用明度阶梯表达层级，而不是靠阴影 */
+  --bg: #0b0e11;
+  --bg-raise: #10141a;
+  --bg-sunken: #07090b;
+  --line: #1e242b;
+  --line-strong: #2b333d;
+
+  /* 文本阶梯 */
+  --ink: #e8edf2;
+  --ink-soft: #a8b3bf;
+  --ink-mute: #6d7885;
+  --ink-faint: #4a545f;
+
+  /* 单一强调色。全页锁定，不出现第二个彩色 */
+  --acc: #34d399;
+  --acc-dim: #1c7f5c;
+  --acc-wash: rgba(52, 211, 153, 0.09);
+  --acc-line: rgba(52, 211, 153, 0.28);
+
+  /* 语义色只用于状态，不用于装饰 */
+  --warn: #d9a441;
+  --danger: #e5645e;
+
+  /* 圆角系统：全页统一。输入/按钮 6px，容器 12px，胶囊仅用于标签 */
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-pill: 999px;
+
+  /* 字体
+     拉丁与等宽自托管 IBM Plex（woff2，体积可控）。
+     中文走**系统字体栈**，不自托管 Noto Sans SC ——
+     实测单字重 3.4 MB（最大分片 1.1 MB），两个字重就要 7 MB，
+     为了一个展示页不值得。系统中文字体（苹方 / 微软雅黑）本身质量足够。
+     这是有意的性能取舍，不是遗漏。 */
+  --sans: 'Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --mono: 'Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, 'PingFang SC',
+    'Microsoft YaHei', monospace;
+
+  /* 节奏 */
+  --gut: clamp(20px, 5vw, 40px);
+  --maxw: 1180px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* 数据处处对齐：所有数字用等宽数字字形 */
+.num,
+code,
+kbd,
+pre,
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+::selection {
+  background: var(--acc);
+  color: #06120c;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: var(--r-pill);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ==========================================================================
+   排版工具类
+   ========================================================================== */
+
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding-inline: var(--gut);
+}
+
+/* 标签：全页只出现在少数几个位置，避免"到处小标签"的 AI tell */
+.label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.display {
+  font-size: clamp(2rem, 5.2vw, 3.6rem);
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+/* 同一字体族的斜体强调，不混入衬线体 */
+.display em {
+  font-style: italic;
+  color: var(--acc);
+  /* 斜体降部留白：y g j p q 不能被裁掉 */
+  padding-bottom: 0.08em;
+}
+
+.h2 {
+  font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  letter-spacing: -0.028em;
+}
+
+.lede {
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 1.75;
+  max-width: 62ch;
+}
+
+.small {
+  font-size: 13px;
+  color: var(--ink-mute);
+  line-height: 1.65;
+}
+
+/* ==========================================================================
+   按钮
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap; /* CTA 绝不换行 */
+  transition:
+    transform 0.12s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
+/* 主 CTA：深字浅底，对比度充足 */
+.btn-primary {
+  background: var(--acc);
+  color: #06120c;
+}
+.btn-primary:hover {
+  background: #4ee0aa;
+}
+
+/* 次 CTA：描边，不是透明幽灵 */
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.btn-ghost:hover {
+  border-color: var(--acc-line);
+  color: var(--acc);
+}
+
+/* ==========================================================================
+   卡片 / 分隔
+   ========================================================================== */
+
+.card {
+  background: var(--bg-raise);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.rule {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+  margin: 0;
+}
+
+/* ==========================================================================
+   入场动效
+   只用于层级与顺序，不做装饰性动画。
+   ========================================================================== */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================================
+   响应式断点：sm 640 / md 768 / lg 1024 / xl 1280
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .wrap {
+    padding-inline: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 14.5px;
+  }
+  .wrap {
+    padding-inline: 18px;
+  }
+  .btn {
+    height: 46px;
+  }
+}

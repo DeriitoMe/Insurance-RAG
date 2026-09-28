@@ -1,0 +1,36 @@
+# ===================================================================
+#  docker compose up -d   就能跑起来
+#
+#  两种用法：
+#    A. 只用示例语料（最快）
+#         docker compose up -d
+#    B. 用自己的条款
+#         把 PDF/JSON 放进 ./data/raw/ ，然后
+#         docker compose run --rm app python scripts/ingest.py /app/data/raw/你的.pdf
+#         docker compose restart app
+# ===================================================================
+
+services:
+  app:
+    build: .
+    image: insurance-rag:latest
+    container_name: insurance-rag
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      # 语料与索引持久化到宿主机，容器删了数据还在
+      - ./data:/app/data
+      # 模型设置持久化到本机隐藏目录，密钥不会进镜像或 Git
+      - ./.runtime:/app/.runtime
+    environment:
+      # Docker 的网页配置写入 /app/.runtime/settings.env，避免修改镜像层
+      PR_ENV_FILE: /app/.runtime/settings.env
+
+      # ---- 检索参数 ----
+      PR_TOP_K: ${PR_TOP_K:-20}
+      PR_TOP_N: ${PR_TOP_N:-5}
+      PR_MAX_CHARS: ${PR_MAX_CHARS:-800}
+      PR_MIN_CHARS: ${PR_MIN_CHARS:-60}
+      PR_USE_BM25: ${PR_USE_BM25:-1}
+      PR_USE_RERANK: ${PR_USE_RERANK:-0}
+    restart: unless-stopped

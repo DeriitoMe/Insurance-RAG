@@ -1,0 +1,29 @@
+# 核心依赖（必需）
+numpy>=1.24
+
+# API 服务（对应 JD 的后端要求）
+fastapi>=0.110
+uvicorn[standard]>=0.27
+
+# 文件上传（网页上直接拖 PDF 进去要用）
+python-multipart>=0.0.9
+
+# 中文分词：BM25 混合检索需要
+jieba>=0.42
+
+# 调用 embedding / LLM 的 OpenAI 兼容接口
+requests>=2.31
+
+# PDF 语料解析
+pypdf>=4.0
+
+# ---------------- 可选 ----------------
+# 本地向量模型与 Rerank（会连带安装 torch，约 2GB）
+# 适合"数据不出内网"的场景，模型推荐 BAAI/bge-large-zh-v1.5
+# sentence-transformers>=2.5
+
+# 专业向量库（chunk 数超过 10 万后再引入）
+# chromadb>=0.4
+
+# 测试
+# pytest>=8.0

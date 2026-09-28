@@ -1,0 +1,57 @@
+# 构建镜像时不需要传给 Docker 的东西
+# 作用：减小构建上下文，加快构建，避免把密钥和大文件烤进镜像
+
+# ---- 密钥 ----
+.env
+.env.settings.tmp
+.runtime/
+*.key
+secrets.json
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# ---- Node ----
+node_modules/
+web/dist/
+web/.vite/
+web/.npm-cache/
+npm-debug.log*
+
+# ---- 索引（容器启动时会自己建）----
+data/index/
+data/index_bak/
+data/processed/
+
+# ---- 本机真实条款不烘焙进镜像；保留合成示例供首次启动 ----
+data/raw/*
+!data/raw/README.md
+!data/raw/sample-*.json
+
+# ---- 评测结果 ----
+eval/results/
+
+# ---- 大文件：测试用 PDF 有 19MB，不进镜像 ----
+data/samples/测试条款.pdf
+
+# ---- 版本控制与编辑器 ----
+.git/
+.gitignore
+.github/
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# ---- 文档（镜像里不需要，README 单独 COPY）----
+docs/
+*.md
+!web/README.md
+
+# ---- 沙箱临时目录 ----
+.piptmp/

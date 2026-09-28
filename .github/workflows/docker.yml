@@ -1,0 +1,71 @@
+name: Build and publish Docker image
+
+# 什么时候跑：
+#   · PR 和推送到 main：只构建镜像，检查 Docker 构建是否正常
+#   · 打 tag（如 v1.0.0）：构建并推送到 GHCR
+#   · Actions 页面手动触发：只构建，不推送
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 只有需要推送时才登录，PR 场景不需要
+      - name: Log in to GitHub Container Registry
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable=true
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # 用 GitHub Actions 的缓存，第二次构建会快很多
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+# ---------------------------------------------------------------------
+# 为什么用 ghcr.io 而不是 Docker Hub：
+#   ghcr 用仓库自带的 GITHUB_TOKEN 就能推，不需要额外配置密钥。
+#   Docker Hub 需要在仓库设置里加 DOCKERHUB_USERNAME / DOCKERHUB_TOKEN 两个 secret。
+#   想换 Docker Hub：把 REGISTRY 改成 docker.io，IMAGE_NAME 改成 你的用户名/仓库名，
+#   然后把 login 那步的 username/password 换成上面那两个 secret。
+# ---------------------------------------------------------------------
